@@ -5,6 +5,7 @@ config {
     hasOutput: "yes"
 }
 
+-- comentario
 CREATE OR REPLACE TABLE `belen-torres-sandbox1.knowledge_catalog.kc_glosario` (
   term STRING,
   description STRING,
