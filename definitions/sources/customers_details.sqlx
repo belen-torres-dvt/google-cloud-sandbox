@@ -1,0 +1,5 @@
+config {
+  type: "declaration",
+  schema: "salesforce_raw_eu",
+  name: "customers_details"
+}

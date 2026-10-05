@@ -1,0 +1,5 @@
+defaultProject: belen-torres-sandbox1
+defaultDataset: dataform
+defaultAssertionDataset: dataform_assertions
+dataformCoreVersion: 3.0.37
+defaultLocation: "europe-west1"

@@ -1,0 +1,20 @@
+config {
+    type: "operations",
+    schema: "knowledge_catalog",
+    tags: ["ddl_bq_glossary_table"],
+    hasOutput: "yes"
+}
+
+CREATE OR REPLACE TABLE `belen-torres-sandbox1.knowledge_catalog.kc_glosario` (
+  term STRING,
+  description STRING,
+  overview STRING,
+  term_name_id STRING,
+  term_parent_id STRING,
+  term_uid STRING,
+  term_timestamp_created TIMESTAMP,
+  term_timestamp_updated TIMESTAMP,
+  overview_timestamp_created TIMESTAMP,
+  overview_timestamp_updated TIMESTAMP,
+  bronze_timestamp_insert TIMESTAMP
+);

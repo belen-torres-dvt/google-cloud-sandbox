@@ -1,0 +1,9 @@
+config {
+    type: "table",
+    schema: "prueba", // está en europe-west1
+    name: "t_dim_t_fact_customers_id_data_quality_scan_g",
+    tags: ["prueba_cross_region"]
+}
+
+SELECT max(job_end_time) AS max_job_end_time
+FROM ${ref("t_customers_id_data_quality_scan")} -- está en EU

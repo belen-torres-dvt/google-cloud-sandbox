@@ -1,0 +1,15 @@
+config {
+    type: "operations",
+    schema: "prueba",
+    tags: ["prueba_cross_region"],
+    hasOutput: "no"
+}
+
+-- Hay que ejecutar los dos
+-- 1. Permite que los trabajos que corren en europe-west1 busquen datos en otras regiones
+ALTER PROJECT `belen-torres-sandbox1` 
+SET OPTIONS ( `region-europe-west1.enable_global_queries_execution` = false );
+
+-- 2. Permite que los datos de la multi-región EU sean accesibles por otras regiones
+ALTER PROJECT `belen-torres-sandbox1` 
+SET OPTIONS ( `region-eu.enable_global_queries_data_access` = false );

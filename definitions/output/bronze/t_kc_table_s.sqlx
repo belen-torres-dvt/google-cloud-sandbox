@@ -1,0 +1,23 @@
+config {
+    type: "table",
+    schema: "knowledge_catalog",
+    name: "t_kc_table_s",
+    tags: ["bq_glossary_table"]
+}
+
+SELECT
+  term,
+  TRIM(
+  REGEXP_REPLACE(REGEXP_REPLACE(description, r'[\r\n\t]+', ' '),r'\s+',' ')) AS description,
+  TRIM(REGEXP_REPLACE(REGEXP_REPLACE(REGEXP_REPLACE(overview,r'<[^>]+>',' '),r'&[a-zA-Z0-9#]+;',' '),r'\s+',' ')
+) AS overview,
+  term_name_id,
+  term_parent_id,
+  term_uid,
+  term_timestamp_created,
+  term_timestamp_updated,
+  overview_timestamp_created,
+  overview_timestamp_updated,
+  bronze_timestamp_insert
+FROM belen-torres-sandbox1.knowledge_catalog.kc_glosario
+WHERE term = 'ABV'

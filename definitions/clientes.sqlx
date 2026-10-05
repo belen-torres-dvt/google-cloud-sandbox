@@ -1,0 +1,25 @@
+config {
+  type: "table",
+  schema: "d_prueba_ew1",
+  description: "Tabla de clientes con datos sensibles",
+  columns: {
+    first_name: {
+      description: "Nombre cliente",
+    },
+    email: {
+      description: "Email del cliente",
+      bigqueryPolicyTags: ["projects/belen-torres-sandbox1/locations/eu/taxonomies/2127881367296898601/policyTags/8772306343180939246"]
+    } 
+  }
+}
+
+SELECT DISTINCT
+  id,
+  first_name AS Nombre,
+  city AS Ciudad,
+  email
+FROM
+  ${ref("customers_details")}
+  WHERE City = 'Aston'
+
+  

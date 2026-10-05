@@ -1,0 +1,37 @@
+-- config {
+--     type: "table",
+--     schema: "d_platinum_account_analysis",
+--     name: "t_booking_window_p",
+--     //tags: ["account_analysis_use_case","bookings"],
+--     bigquery: {
+--         clusterBy: ["chain_id","hotel_id"],
+--         partitionBy: "reservation_date",
+--         labels: {
+--             "transformation": "dataform",
+--             "dataset": "account_analysis",
+--             "origin": "roiback-analytics",
+--             "layer": "platinum"
+--         }
+--     }
+-- }
+-- SELECT
+--     hotel_id,
+--     DATE(reservation_timestamp_hotel) AS reservation_date_hotel,
+--     COUNT(DISTINCT booking_id) AS total_bookings,
+--     SUM(room_nights) AS total_room_nights,
+
+--     SUM(total_produced_with_taxes) AS ttv_net_booking_value,
+--     SUM(total_produced_without_taxes) AS ttv_gross_booking_value,
+
+--     COALESCE(SAFE_DIVIDE(SUM(total_produced_with_taxes), COUNT(DISTINCT booking_id)),0) AS average_booking_value_with_taxes,
+--     COALESCE(SAFE_DIVIDE(SUM(total_produced_without_taxes), COUNT(DISTINCT booking_id)),0) AS average_booking_value_without_taxes,
+
+--     COALESCE(SAFE_DIVIDE(SUM((SELECT SUM(r.total_room_produced_with_taxes) FROM UNNEST(rooms) AS r)), SUM(room_nights)),0) AS average_daily_rate_with_taxes,
+--     COALESCE(SAFE_DIVIDE(SUM((SELECT SUM(r.total_room_produced_without_taxes) FROM UNNEST(rooms) AS r)), SUM(room_nights)),0) AS average_daily_rate_without_taxes,
+    
+-- FROM ${ref("t_fact_bookings_test_g")}
+-- -- WHERE DATE(reservation_timestamp_hotel) = '2026-09-16'
+-- -- AND hotel_id = 900 AND booking_status != 'NULL'  AND booking_status != 'PEND'
+-- GROUP BY hotel_id, reservation_date_hotel
+
+
