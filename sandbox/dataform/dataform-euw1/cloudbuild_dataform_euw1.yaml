@@ -1,0 +1,28 @@
+steps:
+# 1. Instalar dependencias dentro del directorio local
+- name: 'node:18'
+  entrypoint: 'npx'
+  dir: 'sandbox/dataform/dataform-euw1'
+  args:
+  - '@dataform/cli'
+  - 'install'
+
+# 2. Compilar el proyecto SQLX
+- name: 'node:18'
+  entrypoint: 'npx'
+  dir: 'sandbox/dataform/dataform-euw1'
+  args:
+  - '@dataform/cli'
+  - 'compile'
+
+# 3. Executar y desplegar en BigQuery
+- name: 'node:18'
+  entrypoint: 'npx'
+  dir: 'sandbox/dataform/dataform-euw1'
+  args:
+  - '@dataform/cli'
+  - 'run'
+  - '--project=$PROJECT_ID'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
