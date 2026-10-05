@@ -232,4 +232,3 @@
 --     room_nights
 --     QUALIFY
 --     ROW_NUMBER() OVER (PARTITION BY booking_id ORDER BY modification_timestamp DESC) = 1
-
