@@ -1,0 +1,153 @@
+-- config {
+--     type: "incremental",
+--     uniqueKey: ["booking_id"],
+--     schema: "d_gold_account_analysis",
+--     name: "t_fact_bookings_test_g",
+--     tags: ["account_analysis_use_case","bookings"],
+--     description: "Bookings table",
+--     columns: {
+--         booking_id: docs.bookings_short_descriptions.booking_id,
+--         chain_id: docs.bookings_short_descriptions.chain_id,
+--         hotel_id: docs.bookings_short_descriptions.hotel_id,
+--         hotel_code: docs.bookings_short_descriptions.hotel_code,
+--         reservation_timestamp_utc: docs.bookings_short_descriptions.reservation_timestamp_utc,
+--         reservation_timestamp_hotel: docs.bookings_short_descriptions.reservation_timestamp_hotel,
+--         modification_timestamp: docs.bookings_short_descriptions.modification_timestamp,
+--         cancellation_timestamp_hotel: docs.bookings_short_descriptions.cancellation_timestamp_hotel,
+--         market: docs.bookings_short_descriptions.market,
+--         device: docs.bookings_short_descriptions.device,
+--         booking_status: docs.bookings_short_descriptions.booking_status,
+--         affiliate_category: docs.bookings_short_descriptions.affiliate_category,
+--         web_domain: docs.bookings_short_descriptions.web_domain,
+--         payment_method_id: docs.bookings_short_descriptions.payment_method_id,
+--         checkIn: docs.bookings_short_descriptions.checkIn,
+--         checkOut: docs.bookings_short_descriptions.checkOut,
+--         lead_time: docs.bookings_short_descriptions.lead_time,
+--         customer_type: docs.bookings_short_descriptions.customer_type,
+--         booking_origin: docs.bookings_short_descriptions.booking_origin,
+--         booking_customer_segment: docs.bookings_short_descriptions.booking_customer_segment,
+--         length_of_stay: docs.bookings_short_descriptions.length_of_stay,
+--         total_produced_with_taxes: docs.bookings_short_descriptions.total_produced_with_taxes,
+--         total_produced_without_taxes: docs.bookings_short_descriptions.total_produced_without_taxes,
+--         total_accommodation_produced_with_taxes: docs.bookings_short_descriptions.total_accommodation_produced_with_taxes,
+--         total_accommodation_produced_without_taxes: docs.bookings_short_descriptions.total_accommodation_produced_without_taxes,
+--         currency_rate_eur: docs.bookings_short_descriptions.currency_rate_eur,
+--         currency_rate_usd: docs.bookings_short_descriptions.currency_rate_usd,
+--         currency_code_chain: docs.bookings_short_descriptions.currency_code_chain,
+--         currency_rate_chain: docs.bookings_short_descriptions.currency_rate_chain,
+--         currency_code_original: docs.bookings_short_descriptions.currency_code_original,
+--         // ARRAY
+--         rooms: {
+--             description: docs.bookings_short_descriptions.rooms,
+--             columns: {
+--                 room_id: docs.bookings_short_descriptions.room_id,
+--                 room_checkIn: docs.bookings_short_descriptions.room_checkIn,
+--                 room_checkOut: docs.bookings_short_descriptions.room_checkOut,
+--                 total_room_produced_with_taxes: docs.bookings_short_descriptions.total_room_produced_with_taxes,
+--                 total_room_produced_without: docs.bookings_short_descriptions.total_room_produced_without,
+--                 room_nights: docs.bookings_short_descriptions.room_nights,
+--                 average_daily_rate_with_taxes: docs.bookings_short_descriptions.average_daily_rate_with_taxes,
+--                 average_daily_rate_without_taxes: docs.bookings_short_descriptions.average_daily_rate_without_taxes
+--             }
+--         }
+        
+--     },
+--     bigquery: {
+--         clusterBy: ["chain_id"],
+--         partitionBy: "DATE_TRUNC(reservation_timestamp_hotel, MONTH)",
+--         labels: {
+--             "transformation": "dataform",
+--             "dataset": "crs",
+--             "origin": "roiback-analytics",
+--             "layer": "gold"
+--         }
+--     }
+-- }
+
+-- -- booking_status = 'MODIF' --> 'Modificada'
+-- -- booking_status = 'CONF' --> 'Confirmada'
+-- -- booking_status = 'PEND' --> 'Pendiente'
+-- -- booking_status = 'NULL' --> 'Anulada'
+-- -- booking_status = 'CANC' --> 'Cancelada'
+-- -- booking_status = 'NSHOW' --> 'No Show'
+
+-- SELECT 
+--         booking_id,
+--         chain_id,
+--         hotel_id,
+--         hotel_code,
+--         reservation_timestamp_utc, --para cruce con analytics
+--         reservation_timestamp_hotel, --campo para reservas hotel,
+--         modification_timestamp_utc AS modification_timestamp,
+--         cancellation_timestamp_hotel,
+--         LEFT(COALESCE(ip_country_code, guest_country_code, 'ZZ'), 2) AS market,
+--         device,
+--         booking_status,
+--         --affiliate_id, -- para cruce con la tabla de afiliados en caso necesario
+--         affiliate_category,
+--         web_domain,
+--         payment_method_id,
+--         checkIn,
+--         checkOut,
+--         DATE_DIFF(checkIn, reservation_timestamp_hotel, DAY) AS lead_time,
+--         customer_type,
+--         booking_origin, --booking_source, --se usaba para trafico y coversión pero se va a empezar a usar booking origin
+--         booking_customer_segment,
+--         length_of_stay,
+--         total_produced_with_taxes,
+--         total_produced_without_taxes,
+--         total_accommodation_produced_with_taxes,
+--         total_accommodation_produced_without_taxes,
+--         currency_rate_eur,
+--         currency_rate_usd,
+--         currency_code_chain,
+--         currency_rate_chain,
+--         currency_code_original,
+--         room_nights,
+--         ARRAY(
+--             SELECT AS STRUCT
+--                 r.bookingRoom_id,
+--                 r.room_id,
+--                 r.checkIn AS room_checkIn,
+--                 r.checkOut AS room_checkOut,
+--                 r.producedWithTaxes AS total_room_produced_with_taxes,
+--                 r.producedWithoutTaxes AS total_room_produced_without_taxes,
+--             FROM UNNEST(rooms) AS r
+--         ) AS rooms,
+--     FROM ${ref("t_crs_bookings_test_s")}
+--     ${when(incremental(), `WHERE modification_timestamp_utc > (SELECT MAX(modification_timestamp) FROM ${self()})`)}
+--     GROUP BY 
+--         booking_id,
+--         chain_id,
+--         hotel_id,
+--         hotel_code,
+--         reservation_timestamp_utc,
+--         reservation_timestamp_hotel,
+--         cancellation_timestamp_hotel,
+--         market,
+--         device,
+--         booking_status,
+--         affiliate_category,
+--         web_domain,
+--         payment_method_id,
+--         checkIn,
+--         checkOut,
+--         customer_type,
+--         booking_origin,
+--         booking_customer_segment,
+--         length_of_stay,
+--         total_produced_with_taxes,
+--         total_produced_without_taxes,
+--         total_accommodation_produced_with_taxes,
+--         total_accommodation_produced_without_taxes,
+--         currency_rate_eur,
+--         currency_rate_usd,
+--         currency_code_chain,
+--         currency_rate_chain,
+--         currency_code_original,
+--         room_nights,
+--         modification_timestamp,
+--         rooms
+
+--     QUALIFY
+--     ROW_NUMBER() OVER (PARTITION BY booking_id ORDER BY modification_timestamp DESC) = 1

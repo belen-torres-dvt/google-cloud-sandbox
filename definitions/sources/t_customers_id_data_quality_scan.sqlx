@@ -1,0 +1,5 @@
+config {
+  type: "declaration",
+  schema: "dpz_bronze",
+  name: "t_customers_id_data_quality_scan" //EU
+}

@@ -1,0 +1,5 @@
+config {
+  type: "declaration",
+  schema: "bq_backup_test", //europe-west4 Primaria , replica europe-west1
+  name: "bq_table"
+}

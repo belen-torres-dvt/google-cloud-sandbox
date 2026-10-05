@@ -1,0 +1,90 @@
+config {
+    type: "table",
+    schema: "d_gold_uniteco_es",
+    name: "t_dim_clientes_uniteco_es_g",
+    tags: ["UPES", "clientes"],
+    bigquery: {
+        clusterBy: ["cli_billing_state"],
+        labels: {
+            "transformacion": "dataform",
+            "sociedad": "uniteco",
+            "pais": "es",
+            "capa": "gold"
+        }
+    },
+    columns: {
+        cli_id: docs.descripciones_cliente.cli_id,
+        cli_codigointerno: docs.descripciones_cliente.cli_codigointerno,
+        cli_activo: docs.descripciones_cliente.cli_activo,
+        cli_ambito_de_trabajo: docs.descripciones_cliente.cli_ambito_de_trabajo,
+        cli_billing_country_code: docs.descripciones_cliente.cli_billing_country_code,
+        cli_billing_state: docs.descripciones_cliente.cli_billing_state,
+        cli_compania: docs.descripciones_cliente.cli_compania,
+        cli_comercial_asignado: docs.descripciones_cliente.cli_comercial_asignado,
+        cli_nombre_completo: docs.descripciones_cliente.cli_nombre_completo,
+        cli_apellidos_crm: docs.descripciones_cliente.cli_apellidos_crm,
+        cli_apellidos_erp: docs.descripciones_cliente.cli_apellidos_erp,
+        cli_entidad: docs.descripciones_cliente.cli_entidad,
+        cli_estado: docs.descripciones_cliente.cli_estado,
+        cli_fechaalta_crm: docs.descripciones_cliente.cli_fechaalta_crm,
+        cli_fechaalta_erp: docs.descripciones_cliente.cli_fechaalta_erp,
+        cli_fechabaja_erp: docs.descripciones_cliente.cli_fechabaja_erp,
+        cli_fecha_nacimiento: docs.descripciones_cliente.cli_fecha_nacimiento,
+        cli_sexo: docs.descripciones_cliente.cli_sexo,
+        cli_observaciones_crm: docs.descripciones_cliente.cli_observaciones_crm,
+        cli_observaciones_erp: docs.descripciones_cliente.cli_observaciones_erp,
+        cli_tipo_de_documento_de_identidad: docs.descripciones_cliente.cli_tipo_de_documento_de_identidad,
+        cli_titular_cuenta_bancaria: docs.descripciones_cliente.cli_titular_cuenta_bancaria,
+        cli_cuenta_bancaria_masked: docs.descripciones_cliente.cli_cuenta_bancaria_masked,
+        cli_cuenta_bancaria: {
+            description: docs.descripciones_cliente.cli_cuenta_bancaria,
+            bigqueryPolicyTags: [tags.cardPolicy]
+        },
+        cli_numero_documento_de_identidad: {
+            description: docs.descripciones_cliente.cli_numero_documento_de_identidad,
+            bigqueryPolicyTags: [tags.piiPolicy]
+        },
+        cli_email: {
+            description: docs.descripciones_cliente.cli_email,
+            bigqueryPolicyTags: [tags.emailPolicy]
+        },
+        cli_telefono_de_contacto1: {
+            description: docs.descripciones_cliente.cli_telefono_de_contacto1,
+            bigqueryPolicyTags: [tags.phonePolicy]
+        },
+        ts_insert: "Timestamp de ingesta del dato"
+    }
+}
+
+SELECT
+  cli_id,
+  cli_activo,
+  cli_ambito_de_trabajo,
+  cli_billing_country_code,
+  cli_billing_state,
+  cli_compania,
+  cli_comercial_asignado,
+  cli_nombre_completo,
+  cli_entidad,
+  cli_estado,
+  cli_fechaalta_crm,
+  cli_fechaalta_erp,
+  cli_fechabaja_erp,
+  cli_fecha_nacimiento_crm AS cli_fecha_nacimiento,
+  cli_numero_documento_de_identidad,
+  cli_tipo_de_documento_de_identidad,
+  cli_titular_cuenta_bancaria,
+  cli_cuenta_bancaria,
+  CONCAT(SUBSTR(cli_cuenta_bancaria, 1, 4), '********', SUBSTR(cli_cuenta_bancaria, -4)) AS cli_cuenta_bancaria_masked,
+  cli_observaciones_crm,
+  cli_observaciones_erp,
+  cli_sexo,
+  cli_email,
+  cli_telefono_de_contacto1,
+  DATETIME(CURRENT_TIMESTAMP(), "Europe/Madrid") AS ts_insert
+
+FROM
+  ${ref("clientes")}
+
+QUALIFY ROW_NUMBER() OVER (PARTITION BY cli_id ORDER BY ts_insert DESC) = 1
+
