@@ -1,28 +1,29 @@
 steps:
-# 1. Instalar dependencias dentro del directorio local
+# Solo necesario si tienes dependencias externas en package.json
+# - name: 'node:20'
+#   id: 'npm-install'
+#   entrypoint: 'npm'
+#   args: ['install']
+# PASO 1: Compilar y validar el proyecto Dataform
+# Verifica que la sintaxis SQLX, las macros y el grafo de dependencias sean correctos
 - name: 'node:20'
+  id: 'dataform-compile'
   entrypoint: 'npx'
-  dir: 'sandbox/dataform/dataform-euw1'
-  args:
-  - '@dataform/cli'
-  - 'install'
-
-# 2. Compilar el proyecto SQLX
-- name: 'node:20'
-  entrypoint: 'npx'
-  dir: 'sandbox/dataform/dataform-euw1'
   args:
   - '@dataform/cli'
   - 'compile'
 
-# 3. Executar y desplegar en BigQuery
+# PASO 2: Ejecutar los modelos en BigQuery
 - name: 'node:20'
+  id: 'dataform-run'
   entrypoint: 'npx'
-  dir: 'sandbox/dataform/dataform-euw1'
   args:
   - '@dataform/cli'
   - 'run'
-  - '--project=$PROJECT_ID'
+  - '--project=belen-torres-sandbox1'
+
+# Opcional: Especificar la cuenta de servicio con permisos si no usas la de defecto
+# serviceAccount: 'projects/belen-torres-sandbox1/serviceAccounts/dataform-runner@belen-torres-sandbox1.iam.gserviceaccount.com'
 
 options:
   logging: CLOUD_LOGGING_ONLY
