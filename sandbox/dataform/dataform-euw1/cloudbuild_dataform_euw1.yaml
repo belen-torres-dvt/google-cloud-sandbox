@@ -22,6 +22,7 @@ steps:
   args:
   - '@dataform/cli'
   - 'run'
+  - '--credentials-adc'
 
 # Opcional: Especificar la cuenta de servicio con permisos si no usas la de defecto
 # serviceAccount: 'projects/belen-torres-sandbox1/serviceAccounts/dataform-runner@belen-torres-sandbox1.iam.gserviceaccount.com'
