@@ -1,6 +1,6 @@
 steps:
 # 1. Instalar dependencias dentro del directorio local
-- name: 'node:18'
+- name: 'node:20'
   entrypoint: 'npx'
   dir: 'sandbox/dataform/dataform-euw1'
   args:
@@ -8,7 +8,7 @@ steps:
   - 'install'
 
 # 2. Compilar el proyecto SQLX
-- name: 'node:18'
+- name: 'node:20'
   entrypoint: 'npx'
   dir: 'sandbox/dataform/dataform-euw1'
   args:
@@ -16,7 +16,7 @@ steps:
   - 'compile'
 
 # 3. Executar y desplegar en BigQuery
-- name: 'node:18'
+- name: 'node:20'
   entrypoint: 'npx'
   dir: 'sandbox/dataform/dataform-euw1'
   args:
