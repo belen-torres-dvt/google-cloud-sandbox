@@ -9,6 +9,7 @@ steps:
 - name: 'node:20'
   id: 'dataform-compile'
   entrypoint: 'npx'
+  dir: 'sandbox/dataform/dataform-euw1'
   args:
   - '@dataform/cli'
   - 'compile'
@@ -17,6 +18,7 @@ steps:
 - name: 'node:20'
   id: 'dataform-run'
   entrypoint: 'npx'
+  dir: 'sandbox/dataform/dataform-euw1'
   args:
   - '@dataform/cli'
   - 'run'
